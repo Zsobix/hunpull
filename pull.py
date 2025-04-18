@@ -5,11 +5,6 @@
 #						WARNING!!!!:		
 #			you will need to self host because the 
 #			idiotic mediaklikk streams are ip specific
-#
-#					i fucking hate mediaklikk
-#why does the stream need to be fucking encrypted on one stream
-#					but not on the other????
-#also the other stream can be only accessed in an iframe???????
 ################################################################
 
 
@@ -21,7 +16,7 @@ BASE_URL = "https://player.mediaklikk.hu/playernew/player.php?noflash=yes&video=
 m3u = []
 m3u.append('#EXTM3U x-tvg-url="https://zsobix.xyz/epg_ripper_HU1.xml"')
 
-urls=["mtv1live","mtv2live","mtv4live","mtv4plus","mtv5live","dunalive","hirtv"]
+urls=["mtv1live","mtv2live","mtv4live","mtv4plus","mtv5live","dunalive","hirtv","tv2","rtl","sphome"]
 
 for url in urls:
 	if url == "hirtv":
@@ -31,6 +26,24 @@ for url in urls:
 		for line in request:
 			if "play.m3u8" in line:
 				# the line will start with a // or smth so i need to add the origin url
+				m3u.append(get(f"https://onlinestream.live{line}").text.replace("#EXTM3U", "").replace("\n", ""))
+	if url == "tv2":
+		request = get("https://onlinestream.live/tv2/videoplayer/6143-1").text.split('"')
+		m3u.append('#EXTINF:-1 tvg-id="TV2.hu" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/TV2_2008.svg/960px-TV2_2008.svg.png",TV2')
+		for line in request:
+			if "play.m3u8" in line:
+				m3u.append(get(f"https://onlinestream.live{line}").text.replace("#EXTM3U", "").replace("\n", ""))
+	if url == "rtl":
+		request = get("https://onlinestream.live/rtl/videoplayer/6141-1").text.split('"')
+		m3u.append('#EXTINF:-1 tvg-id="RTL.hu" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/b/be/RTL_Logo_2022.png",RTL')
+		for line in request:
+			if "play.m3u8" in line:
+				m3u.append(get(f"https://onlinestream.live{line}").text.replace("#EXTM3U", "").replace("\n", ""))
+	if url == "sphome":
+		request = get("https://onlinestream.live/spektrum-home/videoplayer/6589-1").text.split('"')
+		m3u.append('#EXTINF:-1 tvg-id="Spektrum.Home.hu" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/2/2d/Spektrum-home.png",Spektrum Home')
+		for line in request:
+			if "play.m3u8" in line:
 				m3u.append(get(f"https://onlinestream.live{line}").text.replace("#EXTM3U", "").replace("\n", ""))
 	#custom logic for m4 sport (i hate you mediaklikk)
 	elif url == "mtv4live":
@@ -68,18 +81,16 @@ for url in urls:
 		lines = request.split('"')
 		for line in lines:
 			if "index.m3u8" in line:
-				match url:
-					# i finally added a switch statment
-					case "mtv1live":
-						m3u.append('#EXTINF:-1 tvg-id="m1.HD.hu" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/f/f1/M1_2020.png",M1')
-					case "mtv2live":
-						m3u.append('#EXTINF:-1 tvg-id="m2.HD.hu" tvg-logo="https://upload.wikimedia.org/wikipedia/hu/b/b5/M2_gyerekcsatorna_log%C3%B3ja.png",M2')
-					case "mtv4plus":
-						m3u.append('#EXTINF:-1 tvg-id="m4sport+.hu" tvg-logo="https://upload.wikimedia.org/wikipedia/hu/b/bd/Duna_world_log%C3%B3.png",Duna World/M4 Sport+')
-					case "mtv5live":
-						m3u.append('#EXTINF:-1 tvg-id="m5.hu" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/b/b4/M5logo.png",M5')
-					case "dunalive":
-						m3u.append('#EXTINF:-1 tvg-id="Duna.TV.hu" tvg-logo="https://upload.wikimedia.org/wikipedia/hu/d/d3/Dunatv_logo.png",Duna')
+				if url == "mtv1live":
+					m3u.append('#EXTINF:-1 tvg-id="m1.HD.hu" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/f/f1/M1_2020.png",M1')
+				if url == "mtv2live":
+					m3u.append('#EXTINF:-1 tvg-id="m2.HD.hu" tvg-logo="https://upload.wikimedia.org/wikipedia/hu/b/b5/M2_gyerekcsatorna_log%C3%B3ja.png",M2')
+				if url == "mtv4plus":
+					m3u.append('#EXTINF:-1 tvg-id="Duna.World.hu" tvg-logo="https://upload.wikimedia.org/wikipedia/hu/b/bd/Duna_world_log%C3%B3.png",Duna World/M4 Sport+')
+				if url == "mtv5live":
+					m3u.append('#EXTINF:-1 tvg-id="m5.hu" tvg-logo="https://upload.wikimedia.org/wikipedia/commons/b/b4/M5logo.png",M5')
+				if url == "dunalive":
+					m3u.append('#EXTINF:-1 tvg-id="Duna.TV.hu" tvg-logo="https://upload.wikimedia.org/wikipedia/hu/d/d3/Dunatv_logo.png",Duna')
 				line = regex.sub(r'\\', "", line)
 				m3u.append(regex.sub(r'\?v=5iip:((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$', "", line))
 # my euronews feed from youtube
